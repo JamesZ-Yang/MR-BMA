@@ -35,6 +35,6 @@ mr.bma.out
 
 #permutation procedure to calculate empirical p-values (hours of run time)
 #nrepeat 10-100 to evaluate the run time; nrepeat = 100,000 for stable results
-permute_bma = create.permutations(BMA_output, nrepeat = 1000, save.matrix=TRUE, file.name = "permutation_mrBMA")
+permute_bma = create.permutations(BMA_output, nrepeat = 100000, save.matrix=TRUE, file.name = "permutation_mrBMA")
 
 empirical.p = calculate.p(BMA_output, permute_bma)
