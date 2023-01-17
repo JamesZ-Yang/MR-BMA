@@ -162,6 +162,6 @@ for(i in 1:nr_diag){
 #Tabular value of top 30 Q-statistics
 maxQ=apply(Q, MARGIN=1, FUN=max)
 sort.ix = sort.int(maxQ, decreasing=TRUE, index.return=TRUE)
-Q_tab=cbind(rs,genes,round(Q,digits=3), round(maxQ,digits=3))
+Q_tab=cbind(rs,round(Q,digits=3), round(maxQ,digits=3))
 Q_tab[sort.ix$ix,][1:30,]
 
