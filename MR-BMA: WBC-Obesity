@@ -11,8 +11,12 @@ knitr::opts_chunk$set(fig.path='repl_bma148/')
 
 #load the relevant packages and functions
 library(ggplot2)
+library(TwoSampleMR)
 source("summary_mvMR_SSS.R")
 source("summary_mvMR_BF.R")
+
+# List available GWASs
+ao <- available_outcomes()
 
 ## 1. Loading the data (n=148 instrumental variables) and pre-processing
 load("amd_example")
@@ -28,20 +32,27 @@ exps = mv_extract_exposures(
   pop = "EUR"
 )
 #prepare outcome data
-outcome_dat = extract_outcome_data(
-  snps = exps$SNP,
-  outcomes = c("ieu-a-92"),
-  proxies = TRUE,
-  rsq = 0.8,
-  align_alleles = 1,
-  palindromes = 1,
-  maf_threshold = 0.3,
-  access_token = ieugwasr::check_access_token(),
-  splitsize = 10000,
-  proxy_splitsize = 500
-)
-#harmonize exposure and outcome data
-mvdat = mv_harmonise_data(exposure_dat=exps, outcome_dat, harmonise_strictness = 2)
+for (outcome_id in (c("ieu-a-93", "ieu-a-92", "ieu-a-91", "ieu-a-90"))){
+  outcome_dat = extract_outcome_data(
+    snps = exps$SNP,
+    outcomes = outcome_id,
+    proxies = TRUE,
+    rsq = 0.8,
+    align_alleles = 1,
+    palindromes = 1,
+    maf_threshold = 0.3,
+    access_token = ieugwasr::check_access_token(),
+    splitsize = 10000,
+    proxy_splitsize = 500
+  )
+  #harmonize exposure and outcomes data
+  mvdat = mv_harmonise_data(exposure_dat=exps, outcome_dat, harmonise_strictness = 2)
+  #D =
+  #Q =
+  #Removing outliers identified by Q-statistic and Influential variants identified by Cook's D
+  #MR-BMA
+}
+
 #create
 betaX=as.data.frame(mvdat$exposure_beta)
 obesity_beta = mvdat$outcome_beta
@@ -74,7 +85,7 @@ wbc_out[sort_p$ix,]
 
 
 ## 3. Analysis: Bayesian model selection with stochastic search
-#We create an object of class mvMRInput and we run MR-BMA allowing for models with up to 12 risk factors and a prior probability of 0.1 reflecting an a priori model size of three risk factors.
+#We create an object of class mvMRInput and we run MR-BMA allowing for models with up to n risk factors and a prior probability of 0.1 reflecting an a priori model size of three risk factors.
 set.seed(12345)
 obesity_wbc_input=new("mvMRInput", betaX = as.matrix(betaX_ivw), betaY = as.matrix(obesity_beta_ivw), snps=rs, exposure=rf, outcome = "obesity")
 BMA_output=summarymvMR_SSS(obesity_wbc_input,kmin=1,kmax=length(rf), prior_prob=0.1, max_iter=1000)
@@ -88,7 +99,7 @@ BMA_output@BestModel_Estimate
 best.model.out = sss.report.best.model(BMA_output, prior_sigma=0.5, top = 10, write.out = TRUE, csv.file.name="obesity_best_10models_n371")
 best.model.out
 
-#MR-BMA output: MIP and MACE for each risk factor (top 6)
+#MR-BMA output: MIP and MACE for each risk factor (top n)
 mr.bma.out = sss.report.mr.bma(BMA_output, top = 6, write.out = TRUE, csv.file.name="obesity_mr_bma_n371")
 mr.bma.out
 
@@ -111,7 +122,7 @@ cD = matrix(ncol=nr_diag, nrow=length(obesity_beta_ivw))
 cD_thresh = vector(length=nr_diag)
 Q = matrix(ncol=nr_diag, nrow=length(obesity_beta_ivw))
 
-# *error-fill with loop
+#fill with loop
 for(i in 1:nr_diag){
   print(as.numeric(unlist(strsplit(model_index[i], ","))))
   if(length(as.numeric(unlist(strsplit(model_index[i], ","))))>1){
@@ -141,7 +152,7 @@ maxCD=apply(cD, MARGIN=1, FUN=max)
 sort.ix = sort.int(maxCD, decreasing=TRUE, index.return=TRUE)
 cooksD_tab=cbind(rs,round(cD,digits=3), round(maxCD,digits=3))
 #colnames(cooksD_tab)=c("rs","region","cooksD1","cooksD2","cooksD3","cooksD4","max cooksD")
-#tabular set of Cook's D top 1-6
+#tabular set of Cook's D top 1-n
 cooksD_tab[sort.ix$ix,][1:6,]
 
 
