@@ -1,4 +1,4 @@
-## Multivariable Mendelian randomization: WBC as risk factors for obesity class 3
+## Multivariable Mendelian randomization: WBC as risk factors for overweight to obesity class 3 and BMI
 ## MR-BMA n-36
 
 #set wd
@@ -24,7 +24,10 @@ ao <- available_outcomes()
 ## 1. Loading the data (n=148 instrumental variables) and pre-processing
 #load("amd_example")
 exps = mv_extract_exposures(
-  id_exposure = c("ebi-a-GCST004626", "ebi-a-GCST004614","ebi-a-GCST004600","ebi-a-GCST004631", "ebi-a-GCST004633", "ebi-a-GCST004609", "ebi-a-GCST004632", "ebi-a-GCST004608", "ebi-a-GCST004617", "ebi-a-GCST004634"),
+  id_exposure = c("ebi-a-GCST004606", "ebi-a-GCST004610","ebi-a-GCST004618",
+                  "ebi-a-GCST004629","ebi-a-GCST004625","ebi-a-GCST004627", "ebi-a-GCST004626", "ebi-a-GCST004614",
+                  "ebi-a-GCST004600","ebi-a-GCST004631", "ebi-a-GCST004633", "ebi-a-GCST004609", "ebi-a-GCST004632", 
+                  "ebi-a-GCST004608", "ebi-a-GCST004617", "ebi-a-GCST004634"),
   clump_r2 = 0.001,
   clump_kb = 10000,
   harmonise_strictness = 2,
@@ -35,7 +38,7 @@ exps = mv_extract_exposures(
   pop = "EUR"
 )
 ## Prepare outcome data using for-loop
-outcome_id = c("ieu-a-93", "ieu-a-92", "ieu-a-91", "ieu-a-90")
+outcome_id = c("ieu-b-40", "ieu-a-93", "ieu-a-90", "ieu-a-91", "ieu-a-92")
 
 for (i in 1:length(outcome_id)){
   # print(outcome_id[i])
@@ -249,25 +252,25 @@ for (i in 1:length(outcome_id)){
     mr.bma.out
     
     #MR-BMA permutation: Compute empirical p-values based on permutations. For illustration reasons we only perform 100 permutations here. Ideally, the permutation should be repeated 100k times, Please note this may require a long runtime.
-    # permute_bma = create.permutations(BMA_output, nrepeat = 1000, save.matrix=TRUE, file.name = "permutation_mrBMA.csv")
-    # empirical.p = calculate.p(BMA_output, permute_bma)
-    # empirical.p
+    permute_bma = create.permutations(BMA_output, nrepeat = 1000, save.matrix=TRUE, file.name = "permutation_mrBMA.csv")
+    empirical.p = calculate.p(BMA_output, permute_bma)
+    empirical.p
     
     write.table(x=mr.bma.out, file = paste("Results/",mvdat$outname$id.outcome,".txt",sep = ""), sep = "\t", quote = FALSE,row.names = FALSE, col.names = TRUE, append = TRUE)
     write.table(x=best.model.out, file = paste("Results/",mvdat$outname$id.outcome,".txt",sep = ""), sep = "\t", quote = FALSE,row.names = FALSE, col.names = TRUE, append = TRUE)
     write.table(x=Q_res_sig, file = paste("Results/",mvdat$outname$id.outcome,".txt",sep = ""), sep = "\t", quote = FALSE,row.names = FALSE, col.names = TRUE, append = TRUE)
     write.table(x=D_res_sig, file = paste("Results/",mvdat$outname$id.outcome,".txt",sep = ""), sep = "\t", quote = FALSE,row.names = FALSE, col.names = TRUE, append = TRUE)
-    # write.table(x=empirical.p, file = paste("Results/",mvdat$outname$id.outcome,".txt",sep = ""), sep = "\t", quote = FALSE,row.names = TRUE, col.names = TRUE, append = TRUE)
+    write.table(x=empirical.p, file = paste("Results/",mvdat$outname$id.outcome,".txt",sep = ""), sep = "\t", quote = FALSE,row.names = TRUE, col.names = TRUE, append = TRUE)
   } else {
-    #MR-BMA permutation: Compute empirical p-values based on permutations. For illustration reasons we only perform 100 permutations here. Ideally, the permutation should be repeated 100k times, Please note this may require a long runtime.
-    # permute_bma = create.permutations(BMA_output, nrepeat = 1000, save.matrix=TRUE, file.name = "permutation_mrBMA.csv")
-    # empirical.p = calculate.p(BMA_output, permute_bma)
-    # empirical.p
+    #MR-BMA permutation: Compute empirical p-values based on permutations. For illustration reasons we only perform 1000 permutations here. Ideally, the permutation should be repeated 100k times, Please note this may require a long runtime.
+    permute_bma = create.permutations(BMA_output, nrepeat = 1000, save.matrix=TRUE, file.name = "permutation_mrBMA.csv")
+    empirical.p = calculate.p(BMA_output, permute_bma)
+    empirical.p
     
     write.table(x=mr.bma.out, file = paste("Results/",mvdat$outname$id.outcome,".txt",sep = ""), sep = "\t", quote = FALSE,row.names = FALSE, col.names = TRUE, append = TRUE)
     write.table(x=best.model.out, file = paste("Results/",mvdat$outname$id.outcome,".txt",sep = ""), sep = "\t", quote = FALSE,row.names = FALSE, col.names = TRUE, append = TRUE)
     write.table(x=Q_res_sig, file = paste("Results/",mvdat$outname$id.outcome,".txt",sep = ""), sep = "\t", quote = FALSE,row.names = FALSE, col.names = TRUE, append = TRUE)
     write.table(x=D_res_sig, file = paste("Results/",mvdat$outname$id.outcome,".txt",sep = ""), sep = "\t", quote = FALSE,row.names = FALSE, col.names = TRUE, append = TRUE)
-    # write.table(x=empirical.p, file = paste("Results/",mvdat$outname$id.outcome,".txt",sep = ""), sep = "\t", quote = FALSE,row.names = TRUE, col.names = TRUE, append = TRUE)
+    write.table(x=empirical.p, file = paste("Results/",mvdat$outname$id.outcome,".txt",sep = ""), sep = "\t", quote = FALSE,row.names = TRUE, col.names = TRUE, append = TRUE)
   }
 }
